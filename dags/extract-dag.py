@@ -1,7 +1,10 @@
+import os
 from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+
+airflow_home = os.environ.get("AIRFLOW_HOME")
 
 with DAG(
         dag_id='extract_dag',
@@ -14,5 +17,5 @@ with DAG(
         bash_command='wget -c https://pkgstore.datahub.io/core/top-level-domain-names/'
                      'top-level-domain-names.csv_csv/data/667f4464088f3ca10522e0e2e39c8ae4'
                      '/top-level-domain-names.csv_csv.csv '
-                     '-O /home/victoralmeida/continuous-learning/airflow/etl-handson/airflow-extract-data.csv'
+                     f'-O {airflow_home}/lab/etl-handson/airflow-extract-data.csv'
     )

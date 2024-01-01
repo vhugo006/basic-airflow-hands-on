@@ -1,9 +1,12 @@
+import os
 from datetime import datetime
 
 import pandas as pd
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+
+airflow_home = os.environ.get("AIRFLOW_HOME")
 
 with DAG(
         dag_id='basic_etl_dag',
@@ -14,22 +17,21 @@ with DAG(
     extract_task = BashOperator(
         task_id='extract_task',
         bash_command='wget -c https://pkgstore.datahub.io/core/top-level-domain-names/'
-                     'top-level-domain-names.csv_csv/data/667f4464088f3ca10522e0e2e39c8ae4'
-                     '/top-level-domain-names.csv_csv.csv '
-                     '-O /home/victoralmeida/continuous-learning/airflow/lab/etl-handson/end-to-end'
-                     '/basic-etl-extract-data.csv'
+                     'top-level-domain-names.csv_csv/data/667f4464088f3ca10522e0e2e39c8ae4/'
+                     'top-level-domain-names.csv_csv.csv '
+                     f'-O {airflow_home}/lab/etl-handson/end-to-end/'
+                     'basic-etl-extract-data.csv'
     )
 
 
     def transform_data():
         today = datetime.today()
-        df = pd.read_csv('/home/victoralmeida/continuous-learning/airflow/lab/etl-handson/end-to-end'
+        df = pd.read_csv(f'{airflow_home}/lab/etl-handson/end-to-end'
                          '/basic-etl-extract-data.csv')
 
         generic_type_df = df[df['Type'] == "generic"]
         generic_type_df['Date'] = datetime.strftime(today, '%Y-%m-%d')
-        generic_type_df.to_csv('/home/victoralmeida/continuous-learning/airflow/lab/etl-handson/'
-                               'end-to-end/basic-etl-transform-data.csv', index=False)
+        generic_type_df.to_csv(f'{airflow_home}/lab/etl-handson/''end-to-end/basic-etl-transform-data.csv', index=False)
 
 
     transform_task = PythonOperator(
@@ -39,9 +41,9 @@ with DAG(
 
     load_task = BashOperator(
         task_id='load_task',
-        bash_command='echo -e ".separator ","\n.import --skip 1 /home/victoralmeida/continuous-learning/airflow/'
+        bash_command=f'echo -e ".separator ","\n.import --skip 1 {airflow_home}/'
                      'lab/etl-handson/end-to-end/basic-etl-transform-data.csv top_level_domains" |'
-                     'sqlite3 /home/victoralmeida/continuous-learning/airflow/lab/etl-handson/'
+                     f'sqlite3 {airflow_home}/lab/etl-handson/'
                      'end-to-end/basic-etl-load-db.db',
         dag=dag
     )
