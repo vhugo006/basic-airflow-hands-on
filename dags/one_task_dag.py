@@ -1,8 +1,11 @@
 """One Task DAG"""
+import os
 from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+
+airflow_home = os.environ.get("AIRFLOW_HOME")
 
 default_args = {
     'owner': 'Victor',
@@ -22,5 +25,5 @@ with DAG(
 ) as dag:
     task1 = BashOperator(
         task_id='my_first_task',
-        bash_command='echo "hello to my first DAG" > ~/continuous-learning/airflow/createthisfile.txt'
+        bash_command=f'echo "hello to my first DAG" > {airflow_home}/createthisfile.txt'
     )

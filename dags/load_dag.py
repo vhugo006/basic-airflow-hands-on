@@ -1,7 +1,10 @@
+import os
 from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+
+airflow_home = os.environ.get("AIRFLOW_HOME")
 
 with DAG(
         dag_id='load_dag',
@@ -12,8 +15,8 @@ with DAG(
 ) as dag:
     load_task = BashOperator(
         task_id='load_task',
-        bash_command='echo -e ".separator ","\n.import --skip 1 /home/victoralmeida/continuous-learning/'
-                     'airflow/lab/etl-handson/manual-extract-data.csv top_level_domains" |'
-                     'sqlite3 /home/victoralmeida/continuous-learning/airflow/airflow-load-db.db',
+        bash_command=f'echo -e ".separator ","\n.import --skip 1 {airflow_home}'
+                     '/lab/etl-handson/manual-extract-data.csv top_level_domains" |'
+                     f'sqlite3 {airflow_home}/airflow-load-db.db',
         dag=dag
     )
