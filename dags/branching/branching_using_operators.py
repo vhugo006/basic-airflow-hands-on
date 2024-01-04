@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 import pandas as pd
 from airflow import DAG
@@ -64,7 +65,7 @@ with DAG(
         description='Branching using operators',
         default_args=default_args,
         start_date=days_ago(1),
-        schedule_interval='@once',
+        schedule_interval=timedelta(minutes=1),
         tags=['branching', 'python', 'operators']
 ) as dag:
     read_csv_file_task = PythonOperator(
